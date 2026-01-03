@@ -1,0 +1,11 @@
+{
+  "name": "TravelPlanner",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "start:mobile":"npm --prefix apps/mobile start",
+    "start:backend":"npm --prefix backend run dev",
+    "build":"echo \"No build at root\""
+  }
+}

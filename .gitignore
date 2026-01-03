@@ -1,0 +1,9 @@
+node_modules
+.expo
+apps/mobile/.expo
+apps/mobile/.vscode
+.DS_Store
+apps/mobile/.env
+.env
+.envdist
+coverage
