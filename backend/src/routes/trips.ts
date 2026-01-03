@@ -9,6 +9,11 @@ router.get('/', async (req, res) => {
     const userId = req.query.user_id as string | undefined;
     if (!userId) return res.json({ data: [] });
 
+    if (!supabase) {
+      // Supabase not configured locally
+      return res.status(503).json({ error: 'Supabase not configured. Set SUPABASE_URL and SUPABASE_SERVICE_KEY in backend/.env' });
+    }
+
     const { data, error } = await supabase.from('trips').select('*').eq('owner_id', userId);
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ data });
