@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import tripsRouter from './routes/trips';
 
 dotenv.config();
 
@@ -12,10 +13,8 @@ app.use(express.json());
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
-// Simple sample route - replace with real controllers
-app.get('/api/trips', (_req, res) => {
-  res.json({ data: [] });
-});
+// API routes
+app.use('/api/trips', tripsRouter);
 
 const port = Number(process.env.PORT || 4000);
 app.listen(port, () => {
