@@ -1,26 +1,21 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TripInfoScreen from '../screens/TripInfoScreen';
 import ScheduleScreen from '../screens/ScheduleScreen';
 import MapScreen from '../screens/MapScreen';
 import GoalsScreen from '../screens/GoalsScreen';
 import ExpensesScreen from '../screens/ExpensesScreen';
 
-const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 const MainTabs: React.FC = () => (
-  <Tab.Navigator
+  <Stack.Navigator
     screenOptions={{
-      headerShown: false,
-      detachInactiveScreens: false
+      headerShown: false
     }}
   >
-    <Tab.Screen name="TripInfo" component={TripInfoScreen} options={{ title: 'Trip Info' }} />
-    <Tab.Screen name="Schedule" component={ScheduleScreen} options={{ title: 'Schedule' }} />
-    <Tab.Screen name="Map" component={MapScreen} options={{ title: 'Map' }} />
-    <Tab.Screen name="Goals" component={GoalsScreen} options={{ title: 'Goals' }} />
-    <Tab.Screen name="Expenses" component={ExpensesScreen} options={{ title: 'Expenses' }} />
-  </Tab.Navigator>
+    <Stack.Screen name="TripInfo" component={TripInfoScreen} />
+  </Stack.Navigator>
 );
 
 export default MainTabs;
