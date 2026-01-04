@@ -1,10 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import tripsRouter from './routes/trips';
-
-dotenv.config();
 
 const app = express();
 app.use(helmet());
