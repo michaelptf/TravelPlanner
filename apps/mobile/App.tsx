@@ -1,24 +1,17 @@
-import 'react-native-gesture-handler';
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import MainTabs from './src/navigation/MainTabs';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { enableScreens } from 'react-native-screens';
+import { View, Text, StyleSheet } from 'react-native';
 
-enableScreens();
-
-const queryClient = new QueryClient();
-
+// Temporary minimal App to isolate RNSScreen error
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <NavigationContainer>
-          <MainTabs />
-        </NavigationContainer>
-      </QueryClientProvider>
-    </SafeAreaProvider>
+    <View style={styles.container}>
+      <Text style={styles.text}>Minimal App — debugging RNSScreen issue</Text>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  text: { fontSize: 18 }
+});
 
