@@ -7,6 +7,7 @@ const TripInfoScreen: React.FC = () => {
   const [error, setError] = useState<string | undefined>();
   const [lastResult, setLastResult] = useState<string | undefined>();
   const [detectedBase, setDetectedBase] = useState<string | undefined>();
+  const [testUserId, setTestUserId] = useState<string>('11111111-1111-1111-1111-111111111111');
 
   const getApiBase = () => {
     // Strategies to determine backend host reachable from the device
@@ -29,7 +30,7 @@ const TripInfoScreen: React.FC = () => {
     return { base: 'http://localhost:4000', source: 'localhost_fallback' };
   };
 
-  const testApi = async () => {
+  const testApi = async (userId?: string) => {
     setError(undefined);
     setLastResult(undefined);
     try {
@@ -72,10 +73,17 @@ const TripInfoScreen: React.FC = () => {
       </View>
 
       <View style={{ marginTop: 16 }}>
+        <Text style={{ marginBottom: 8 }}>Test user id:</Text>
+        <TextInput
+          value={testUserId}
+          onChangeText={setTestUserId}
+          style={{ borderWidth: 1, borderColor: '#ddd', padding: 8, borderRadius: 6, marginBottom: 8 }}
+          placeholder="owner_id (uuid)"
+        />
         {loading ? (
           <ActivityIndicator />
         ) : (
-          <Button title="Test Backend API" onPress={testApi} />
+          <Button title="Test Backend API" onPress={() => testApi(testUserId)} />
         )}
       </View>
 
