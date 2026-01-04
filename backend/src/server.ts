@@ -15,6 +15,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 // API routes
 app.use('/api/trips', tripsRouter);
+app.use('/api/dev', require('./routes/dev').default);
 
 const port = Number(process.env.PORT || 4000);
 app.listen(port, () => {
