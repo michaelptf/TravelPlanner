@@ -36,9 +36,11 @@ CREATE TABLE IF NOT EXISTS trip_members (
   role text DEFAULT 'member',
   mbti varchar(4),
   joined boolean DEFAULT true,
-  created_at timestamptz DEFAULT now(),
-  UNIQUE(trip_id, COALESCE(profile_id::text, email))
+  created_at timestamptz DEFAULT now()
 );
+
+-- Unique constraint for trip_members (either profile_id or email, not both null)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trip_members_unique ON trip_members (trip_id, COALESCE(profile_id::text, email));
 
 -- schedule tables
 CREATE TABLE IF NOT EXISTS schedule_days (
