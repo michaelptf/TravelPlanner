@@ -9,6 +9,12 @@ router.get('/', async (req, res) => {
     const userId = req.query.user_id as string | undefined;
     if (!userId) return res.json({ data: [] });
 
+    // Validate UUID format to avoid Postgres casting errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      return res.status(400).json({ error: 'Invalid user_id: must be a UUID (e.g., 11111111-1111-1111-1111-111111111111)' });
+    }
+
     if (!supabase) {
       // Supabase not configured locally — return mock data in dev so mobile can continue working
       if (process.env.NODE_ENV !== 'production') {
