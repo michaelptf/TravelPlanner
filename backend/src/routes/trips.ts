@@ -10,7 +10,25 @@ router.get('/', async (req, res) => {
     if (!userId) return res.json({ data: [] });
 
     if (!supabase) {
-      // Supabase not configured locally
+      // Supabase not configured locally — return mock data in dev so mobile can continue working
+      if (process.env.NODE_ENV !== 'production') {
+        const mock = [
+          {
+            id: 'mock-trip-1',
+            owner_id: userId || null,
+            title: 'Mock Trip to Tokyo',
+            description: 'This is a locally provided mock trip for development.',
+            start_date: '2026-03-01',
+            end_date: '2026-03-10',
+            default_currency: 'USD',
+            ai_enabled: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ];
+        return res.json({ data: mock });
+      }
+
       return res.status(503).json({ error: 'Supabase not configured. Set SUPABASE_URL and SUPABASE_SERVICE_KEY in backend/.env' });
     }
 
