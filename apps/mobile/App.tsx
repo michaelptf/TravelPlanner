@@ -1,13 +1,7 @@
-import 'react-native-gesture-handler';
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import MainTabs from './src/navigation/MainTabs';
+import TripInfoScreen from './src/screens/TripInfoScreen';
 
 export default function App() {
-  return (
-    <NavigationContainer>
-      <MainTabs />
-    </NavigationContainer>
-  );
+  return <TripInfoScreen />;
 }
 
