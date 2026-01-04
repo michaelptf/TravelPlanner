@@ -4,26 +4,55 @@ import Constants from 'expo-constants';
 
 const TripInfoScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [lastResult, setLastResult] = useState<string | undefined>();
+  const [detectedBase, setDetectedBase] = useState<string | undefined>();
 
   const getApiBase = () => {
-    // Use debuggerHost when running in Expo dev mode to reach the local backend from the device
-    const debuggerHost = (Constants as any)?.manifest?.debuggerHost as string | undefined;
+    // Strategies to determine backend host reachable from the device
+    // 1) Expo debugger host (when running in dev mode)
+    const manifest: any = (Constants as any)?.manifest || (Constants as any)?.manifest2;
+    const debuggerHost = manifest?.debuggerHost as string | undefined;
     if (debuggerHost) {
       const host = debuggerHost.split(':')[0];
-      return `http://${host}:4000`;
+      return { base: `http://${host}:4000`, source: 'debuggerHost' };
     }
-    return 'http://localhost:4000';
+
+    // 2) expo devtools hostUri (sometimes available in Constants.expoConfig)
+    const hostUri = (Constants as any)?.expoConfig?.hostUri as string | undefined;
+    if (hostUri) {
+      const host = hostUri.split(':')[0];
+      return { base: `http://${host}:4000`, source: 'expoConfig.hostUri' };
+    }
+
+    // 3) fallback to localhost (won't work from device but informative)
+    return { base: 'http://localhost:4000', source: 'localhost_fallback' };
   };
 
   const testApi = async () => {
+    setError(undefined);
+    setLastResult(undefined);
     try {
       setLoading(true);
-      const base = getApiBase();
-      const res = await fetch(`${base}/api/trips?user_id=1`);
+      const { base, source } = getApiBase();
+      setDetectedBase(base + ` (from ${source})`);
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+
+      const res = await fetch(`${base}/api/trips?user_id=1`, { signal: controller.signal });
+      clearTimeout(timeout);
+
+      if (!res.ok) {
+        const text = await res.text();
+        setError(`HTTP ${res.status}: ${text}`);
+        return;
+      }
+
       const json = await res.json();
-      Alert.alert('API Response', JSON.stringify(json, null, 2));
+      setLastResult(JSON.stringify(json, null, 2));
     } catch (err: any) {
-      Alert.alert('Error', err.message || String(err));
+      setError(err.message || String(err));
     } finally {
       setLoading(false);
     }
@@ -49,6 +78,25 @@ const TripInfoScreen: React.FC = () => {
           <Button title="Test Backend API" onPress={testApi} />
         )}
       </View>
+
+      {detectedBase ? (
+        <View style={{ marginTop: 12 }}>
+          <Text style={{ color: '#444' }}>Using base: {detectedBase}</Text>
+        </View>
+      ) : null}
+
+      {error ? (
+        <View style={{ marginTop: 12 }}>
+          <Text style={{ color: 'crimson' }}>Error: {error}</Text>
+        </View>
+      ) : null}
+
+      {lastResult ? (
+        <View style={{ marginTop: 12 }}>
+          <Text style={{ fontFamily: 'monospace' }}>{lastResult}</Text>
+        </View>
+      ) : null}
+
     </ScrollView>
   );
 };
