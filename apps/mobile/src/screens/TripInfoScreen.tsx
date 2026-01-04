@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Button, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Button, Alert, ActivityIndicator, TextInput } from 'react-native';
 import Constants from 'expo-constants';
 
 const TripInfoScreen: React.FC = () => {
