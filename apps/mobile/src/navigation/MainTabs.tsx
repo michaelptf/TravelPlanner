@@ -9,12 +9,17 @@ import ExpensesScreen from '../screens/ExpensesScreen';
 const Tab = createBottomTabNavigator();
 
 const MainTabs: React.FC = () => (
-  <Tab.Navigator>
-    <Tab.Screen name="TripInfo" component={TripInfoScreen} />
-    <Tab.Screen name="Schedule" component={ScheduleScreen} />
-    <Tab.Screen name="Map" component={MapScreen} />
-    <Tab.Screen name="Goals" component={GoalsScreen} />
-    <Tab.Screen name="Expenses" component={ExpensesScreen} />
+  <Tab.Navigator
+    screenOptions={{
+      headerShown: false,
+      detachInactiveScreens: false
+    }}
+  >
+    <Tab.Screen name="TripInfo" component={TripInfoScreen} options={{ title: 'Trip Info' }} />
+    <Tab.Screen name="Schedule" component={ScheduleScreen} options={{ title: 'Schedule' }} />
+    <Tab.Screen name="Map" component={MapScreen} options={{ title: 'Map' }} />
+    <Tab.Screen name="Goals" component={GoalsScreen} options={{ title: 'Goals' }} />
+    <Tab.Screen name="Expenses" component={ExpensesScreen} options={{ title: 'Expenses' }} />
   </Tab.Navigator>
 );
 
