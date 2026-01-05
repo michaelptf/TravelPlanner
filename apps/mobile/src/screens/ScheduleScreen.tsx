@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchSchedule, createSchedule, deleteSchedule } from '../services/api';
+import { colors, spacing, typography, shadows } from '../theme';
+import Header from '../components/Header';
 
 type ScheduleItem = {
   id: string;
@@ -84,51 +86,55 @@ const ScheduleScreen: React.FC = () => {
   };
 
   const renderItem = ({ item }: { item: ScheduleItem }) => (
-    <TouchableOpacity style={styles.item} onLongPress={() => removeItem(item.id)}>
+    <TouchableOpacity style={styles.card} onLongPress={() => removeItem(item.id)}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.itemTitle}>{item.title}</Text>
-        <Text style={styles.itemMeta}>{new Date(item.start).toLocaleString()}</Text>
-        {item.location ? <Text style={styles.itemMeta}>{item.location}</Text> : null}
-        {item.notes ? <Text style={styles.itemNotes}>{item.notes}</Text> : null}
+        <Text style={styles.cardTitle}>{item.title}</Text>
+        <Text style={styles.cardTime}>🕐 {new Date(item.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+        {item.location ? <Text style={styles.cardLocation}>📍 {item.location}</Text> : null}
+        {item.notes ? <Text style={styles.cardNotes}>{item.notes}</Text> : null}
       </View>
-      <TouchableOpacity onPress={() => removeItem(item.id)}>
-        <Text style={{ color: 'crimson' }}>Delete</Text>
+      <TouchableOpacity onPress={() => removeItem(item.id)} style={styles.deleteButton}>
+        <Text style={styles.deleteText}>✕</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Schedule</Text>
+      <Header tripName="Tokyo Escape" />
+      <View style={styles.content}>
+        <Text style={styles.sectionTitle}>📅 Schedule</Text>
 
-      <View style={styles.form}>
-        <TextInput
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Add activity (e.g., 'City tour')"
-          style={styles.input}
+        <View style={styles.formCard}>
+          <TextInput
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Activity name (e.g., 'City tour')"
+            style={styles.input}
+            placeholderTextColor={colors.mutedText}
+          />
+          <TextInput
+            value={location}
+            onChangeText={setLocation}
+            placeholder="Location (optional)"
+            style={styles.input}
+            placeholderTextColor={colors.mutedText}
+          />
+          <Button title="+ Add Activity" onPress={addItem} color={colors.coral} />
+        </View>
+
+        <FlatList
+          scrollEnabled={false}
+          data={items}
+          keyExtractor={(i) => i.id}
+          renderItem={renderItem}
+          ListEmptyComponent={<Text style={styles.emptyText}>No activities yet. Add your first one!</Text>}
         />
-        <TextInput
-          value={location}
-          onChangeText={setLocation}
-          placeholder="Location (optional)"
-          style={styles.input}
-        />
-        <Button title="Add" onPress={addItem} />
-      </View>
 
-      <FlatList
-        data={items}
-        keyExtractor={(i) => i.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingTop: 12 }}
-        ListEmptyComponent={<Text>No schedule items yet.</Text>}
-      />
-
-      <View style={{ marginTop: 12 }}>
         <Button
-          title="Seed mock items"
+          title="🌱 Seed Mock Items"
           onPress={() => queryClient.setQueryData(['schedule', demoTripId], initialMock)}
+          color={colors.accentGold}
         />
       </View>
     </View>
@@ -136,14 +142,19 @@ const ScheduleScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
-  form: { marginBottom: 12 },
-  input: { borderWidth: 1, borderColor: '#ddd', padding: 8, marginBottom: 8, borderRadius: 6 },
-  item: { padding: 12, backgroundColor: '#fff', borderRadius: 8, marginBottom: 10, flexDirection: 'row', alignItems: 'center' },
-  itemTitle: { fontWeight: '600', marginBottom: 4 },
-  itemMeta: { color: '#666', fontSize: 12 },
-  itemNotes: { color: '#666', fontSize: 12, marginTop: 6 },
+  container: { flex: 1, backgroundColor: colors.lightBg },
+  content: { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.md },
+  sectionTitle: { ...typography.h2, marginBottom: spacing.lg },
+  formCard: { ...shadows.soft, backgroundColor: colors.cardBg, borderRadius: 12, padding: spacing.md, marginBottom: spacing.lg },
+  input: { borderWidth: 1, borderColor: colors.borderLight, padding: spacing.md, marginBottom: spacing.md, borderRadius: 8, backgroundColor: colors.lightBg, color: colors.darkText },
+  card: { ...shadows.soft, backgroundColor: colors.cardBg, borderRadius: 12, padding: spacing.md, marginBottom: spacing.md, flexDirection: 'row', alignItems: 'flex-start' },
+  cardTitle: { ...typography.body, fontWeight: '600', marginBottom: spacing.xs, color: colors.darkText },
+  cardTime: { ...typography.caption, marginBottom: spacing.xs, color: colors.mutedText },
+  cardLocation: { ...typography.caption, color: colors.peach, marginBottom: spacing.xs },
+  cardNotes: { ...typography.small, color: colors.mutedText, marginTop: spacing.xs },
+  deleteButton: { marginLeft: spacing.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+  deleteText: { color: colors.coral, fontSize: 18, fontWeight: '600' },
+  emptyText: { ...typography.caption, textAlign: 'center', paddingVertical: spacing.lg, color: colors.mutedText },
 });
 
 export default ScheduleScreen;

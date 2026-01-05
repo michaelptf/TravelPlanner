@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button, Alert, ActivityIndicator, TextInput } from 'react-native';
 import Constants from 'expo-constants';
+import { colors, spacing, typography, shadows } from '../theme';
+import Header from '../components/Header';
 
 const TripInfoScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -65,84 +67,121 @@ const TripInfoScreen: React.FC = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Trip Info</Text>
+      <Header tripName="Tokyo Escape" onMorePress={() => Alert.alert('Menu', 'Coming soon')} />
+
       <View style={styles.section}>
-        <Text>Flight</Text>
-      </View>
-      <View style={styles.section}>
-        <Text>Hotel</Text>
-      </View>
-      <View style={styles.section}>
-        <Text>Members & MBTI</Text>
+        <Text style={styles.sectionTitle}>✈️ Flight</Text>
+        <View style={styles.card}>
+          <View style={styles.cardRow}>
+            <Text style={styles.label}>Departure:</Text>
+            <Text style={styles.value}>SFO • 9:00 AM</Text>
+          </View>
+          <View style={styles.cardRow}>
+            <Text style={styles.label}>Arrival:</Text>
+            <Text style={styles.value}>NRT • 2:00 PM +1d</Text>
+          </View>
+        </View>
       </View>
 
-      <View style={{ marginTop: 16 }}>
-        <Text style={{ marginBottom: 8 }}>Test user id:</Text>
-        <TextInput
-          value={testUserId}
-          onChangeText={(t) => {
-            setTestUserId(t);
-            setError(undefined);
-          }}
-          style={{
-            borderWidth: 1,
-            borderColor: !isUserIdValid ? 'crimson' : '#ddd',
-            padding: 8,
-            borderRadius: 6,
-            marginBottom: 8,
-          }}
-          placeholder="owner_id (uuid)"
-        />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>🏨 Hotel</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Shinjuku Royal Hotel</Text>
+          <Text style={styles.cardSubtext}>📍 Shinjuku, Tokyo</Text>
+          <Text style={styles.cardSubtext}>Dates: Mar 1 - Mar 10</Text>
+        </View>
+      </View>
 
-        {!isUserIdValid ? (
-          <Text style={{ color: 'crimson', marginBottom: 8 }}>
-            Invalid user id: must be a UUID (e.g., 11111111-1111-1111-1111-111111111111)
-          </Text>
-        ) : null}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>👥 Vibe</Text>
+        <View style={styles.card}>
+          <View style={styles.vibeRow}>
+            <Text style={styles.vibeBadge}>🧘 Relaxing</Text>
+            <Text style={styles.vibeBadge}>🎨 Cultural</Text>
+          </View>
+        </View>
+      </View>
 
-        {loading ? (
-          <ActivityIndicator />
-        ) : (
-          <Button
-            title={isUserIdValid ? 'Test Backend API' : 'Enter valid UUID'}
-            onPress={() => {
-              if (!isUserIdValid) {
-                setError('Invalid user_id: must be a UUID.');
-                return;
-              }
-              testApi(testUserId);
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>🧪 Test Backend API</Text>
+        <View style={styles.card}>
+          <Text style={styles.label}>Test user id:</Text>
+          <TextInput
+            value={testUserId}
+            onChangeText={(t) => {
+              setTestUserId(t);
+              setError(undefined);
             }}
-            disabled={!isUserIdValid || loading}
+            style={{
+              ...styles.input,
+              borderColor: !isUserIdValid ? colors.coral : colors.borderLight,
+            }}
+            placeholder="owner_id (uuid)"
           />
-        )}
+          {!isUserIdValid ? (
+            <Text style={styles.errorText}>
+              Invalid user id: must be a UUID (e.g., 11111111-1111-1111-1111-111111111111)
+            </Text>
+          ) : null}
+          {loading ? (
+            <ActivityIndicator color={colors.coral} />
+          ) : (
+            <Button
+              title={isUserIdValid ? 'Test Backend API' : 'Enter valid UUID'}
+              onPress={() => {
+                if (!isUserIdValid) {
+                  setError('Invalid user_id: must be a UUID.');
+                  return;
+                }
+                testApi(testUserId);
+              }}
+              disabled={!isUserIdValid || loading}
+              color={colors.coral}
+            />
+          )}
+
+          {detectedBase ? (
+            <View style={styles.infoBox}>
+              <Text style={styles.infoText}>Using base: {detectedBase}</Text>
+            </View>
+          ) : null}
+
+          {error ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>Error: {error}</Text>
+            </View>
+          ) : null}
+
+          {lastResult ? (
+            <View style={styles.resultBox}>
+              <Text style={styles.resultText}>{lastResult}</Text>
+            </View>
+          ) : null}
+        </View>
       </View>
-
-      {detectedBase ? (
-        <View style={{ marginTop: 12 }}>
-          <Text style={{ color: '#444' }}>Using base: {detectedBase}</Text>
-        </View>
-      ) : null}
-
-      {error ? (
-        <View style={{ marginTop: 12 }}>
-          <Text style={{ color: 'crimson' }}>Error: {error}</Text>
-        </View>
-      ) : null}
-
-      {lastResult ? (
-        <View style={{ marginTop: 12 }}>
-          <Text style={{ fontFamily: 'monospace' }}>{lastResult}</Text>
-        </View>
-      ) : null}
-
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
-  section: { padding: 12, borderRadius: 8, backgroundColor: '#fff', marginBottom: 10 }
+  container: { paddingBottom: spacing.xl, backgroundColor: colors.lightBg },
+  section: { marginBottom: spacing.lg, paddingHorizontal: spacing.lg },
+  sectionTitle: { ...typography.h2, marginBottom: spacing.md },
+  card: { ...shadows.soft, backgroundColor: colors.cardBg, borderRadius: 12, padding: spacing.md },
+  cardRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.sm },
+  cardTitle: { ...typography.h2, marginBottom: spacing.sm },
+  cardSubtext: { ...typography.caption, marginBottom: spacing.xs },
+  label: { ...typography.body, fontWeight: '600', color: colors.mutedText },
+  value: { ...typography.body, fontWeight: '600', color: colors.darkText },
+  vibeRow: { flexDirection: 'row', gap: spacing.md },
+  vibeBadge: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, backgroundColor: colors.warmCream, borderRadius: 20, fontSize: 14 },
+  input: { borderWidth: 1, padding: spacing.md, marginVertical: spacing.md, borderRadius: 8, backgroundColor: colors.lightBg },
+  errorText: { color: colors.coral, fontSize: 12, marginVertical: spacing.xs },
+  errorBox: { backgroundColor: '#FFE5E5', padding: spacing.md, borderRadius: 8, marginVertical: spacing.md },
+  infoBox: { backgroundColor: colors.warmCream, padding: spacing.md, borderRadius: 8, marginVertical: spacing.md },
+  infoText: { ...typography.caption, color: colors.darkText },
+  resultBox: { backgroundColor: colors.softShadow, padding: spacing.md, borderRadius: 8, marginVertical: spacing.md },
+  resultText: { ...typography.small, color: colors.darkText, fontFamily: 'monospace' },
 });
 
 export default TripInfoScreen;

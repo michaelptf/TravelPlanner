@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchExpenses, createExpense, deleteExpense } from '../services/api';
+import { colors, spacing, typography, shadows } from '../theme';
+import Header from '../components/Header';
 
 type Expense = {
   id: string;
@@ -68,36 +70,71 @@ const ExpensesScreen: React.FC = () => {
   const renderItem = ({ item }: { item: Expense }) => {
     const share = item.amount / item.participants.length;
     return (
-      <View style={styles.item}>
+      <View style={styles.card}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.itemTitle}>{item.description}</Text>
-          <Text style={styles.itemMeta}>${item.amount.toFixed(2)} • paid by {item.payer}</Text>
-          <Text style={styles.itemMeta}>share: ${share.toFixed(2)} • {item.participants.join(', ')}</Text>
+          <Text style={styles.cardTitle}>{item.description}</Text>
+          <Text style={styles.cardAmount}>${item.amount.toFixed(2)}</Text>
+          <Text style={styles.cardSubtext}>Paid by {item.payer}</Text>
+          <Text style={styles.cardSubtext}>Share: ${share.toFixed(2)} • {item.participants.join(', ')}</Text>
         </View>
-        <TouchableOpacity onPress={() => removeItem(item.id)}>
-          <Text style={{ color: 'crimson' }}>Delete</Text>
+        <TouchableOpacity onPress={() => removeItem(item.id)} style={styles.deleteButton}>
+          <Text style={styles.deleteText}>✕</Text>
         </TouchableOpacity>
       </View>
     );
   };
 
+  const totalExpenses = items?.reduce((sum, item) => sum + item.amount, 0) || 0;
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Expenses</Text>
+      <Header tripName="Tokyo Escape" />
+      <View style={styles.content}>
+        <Text style={styles.sectionTitle}>💰 Expenses</Text>
 
-      <View style={styles.form}>
-        <TextInput value={desc} onChangeText={setDesc} placeholder="Description" style={styles.input} />
-        <TextInput value={amount} onChangeText={setAmount} placeholder="Amount" keyboardType="decimal-pad" style={styles.input} />
-        <TextInput value={payer} onChangeText={setPayer} placeholder="Payer" style={styles.input} />
-        <Button title="Add Expense" onPress={addItem} />
-      </View>
+        <View style={styles.formCard}>
+          <TextInput
+            value={desc}
+            onChangeText={setDesc}
+            placeholder="Description (e.g., Taxi)"
+            style={styles.input}
+            placeholderTextColor={colors.mutedText}
+          />
+          <TextInput
+            value={amount}
+            onChangeText={setAmount}
+            placeholder="Amount"
+            keyboardType="decimal-pad"
+            style={styles.input}
+            placeholderTextColor={colors.mutedText}
+          />
+          <TextInput
+            value={payer}
+            onChangeText={setPayer}
+            placeholder="Who paid?"
+            style={styles.input}
+            placeholderTextColor={colors.mutedText}
+          />
+          <Button title="+ Add Expense" onPress={addItem} color={colors.coral} />
+        </View>
 
-      <FlatList data={items} keyExtractor={(i) => i.id} renderItem={renderItem} ListEmptyComponent={<Text>No expenses yet.</Text>} />
+        <FlatList
+          scrollEnabled={false}
+          data={items}
+          keyExtractor={(i) => i.id}
+          renderItem={renderItem}
+          ListEmptyComponent={<Text style={styles.emptyText}>No expenses yet. Add your first one!</Text>}
+        />
 
-      <View style={{ marginTop: 12 }}>
+        <View style={styles.totalCard}>
+          <Text style={styles.totalLabel}>Total Expenses</Text>
+          <Text style={styles.totalAmount}>${totalExpenses.toFixed(2)}</Text>
+        </View>
+
         <Button
-          title="Seed mock expenses"
+          title="🌱 Seed Mock Expenses"
           onPress={() => queryClient.setQueryData(['expenses', demoTripId], initialMock)}
+          color={colors.accentGold}
         />
       </View>
     </View>
@@ -105,13 +142,21 @@ const ExpensesScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
-  form: { marginBottom: 12 },
-  input: { borderWidth: 1, borderColor: '#ddd', padding: 8, marginBottom: 8, borderRadius: 6 },
-  item: { padding: 12, backgroundColor: '#fff', borderRadius: 8, marginBottom: 10, flexDirection: 'row', alignItems: 'center' },
-  itemTitle: { fontWeight: '600', marginBottom: 4 },
-  itemMeta: { color: '#666', fontSize: 12 },
+  container: { flex: 1, backgroundColor: colors.lightBg },
+  content: { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg },
+  sectionTitle: { ...typography.h2, marginBottom: spacing.lg },
+  formCard: { ...shadows.soft, backgroundColor: colors.cardBg, borderRadius: 12, padding: spacing.md, marginBottom: spacing.lg },
+  input: { borderWidth: 1, borderColor: colors.borderLight, padding: spacing.md, marginBottom: spacing.md, borderRadius: 8, backgroundColor: colors.lightBg, color: colors.darkText },
+  card: { ...shadows.soft, backgroundColor: colors.cardBg, borderRadius: 12, padding: spacing.md, marginBottom: spacing.md, flexDirection: 'row', alignItems: 'flex-start' },
+  cardTitle: { ...typography.body, fontWeight: '600', marginBottom: spacing.xs, color: colors.darkText },
+  cardAmount: { ...typography.h2, fontWeight: '700', color: colors.coral, marginBottom: spacing.xs },
+  cardSubtext: { ...typography.caption, color: colors.mutedText, marginBottom: spacing.xs },
+  deleteButton: { marginLeft: spacing.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+  deleteText: { color: colors.coral, fontSize: 18, fontWeight: '600' },
+  totalCard: { ...shadows.medium, backgroundColor: colors.warmCream, borderRadius: 12, padding: spacing.md, marginBottom: spacing.lg, alignItems: 'center' },
+  totalLabel: { ...typography.caption, color: colors.mutedText, marginBottom: spacing.xs },
+  totalAmount: { fontSize: 32, fontWeight: '700', color: colors.coral },
+  emptyText: { ...typography.caption, textAlign: 'center', paddingVertical: spacing.lg, color: colors.mutedText },
 });
 
 export default ExpensesScreen;
