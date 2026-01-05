@@ -8,8 +8,13 @@ type ScheduleItem = {
   trip_id: string;
   title: string;
   start: string;
+  end?: string;
   location?: string;
   notes?: string;
+  lat?: number | null;
+  lng?: number | null;
+  place_id?: string | null;
+  ai_generated?: boolean;
 };
 
 // In-memory mock store for dev
@@ -48,6 +53,7 @@ router.get('/', async (req, res) => {
     }
 
     // Find schedule_day ids for the trip, then fetch schedule_items
+    if (!supabase) return res.status(503).json({ error: 'Supabase not configured' });
     const { data: days, error: daysErr } = await supabase.from('schedule_days').select('id,date').eq('trip_id', tripId);
     if (daysErr) return res.status(500).json({ error: daysErr.message });
     const dayIds = (days || []).map((d: any) => d.id);

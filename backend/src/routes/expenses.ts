@@ -34,13 +34,13 @@ router.get('/', async (req, res) => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (supabase) {
       if (!uuidRegex.test(tripId)) return res.status(400).json({ error: 'Invalid trip_id: must be a UUID when Supabase is configured' });
+      const { data, error } = await supabase.from('expenses').select('*').eq('trip_id', tripId);
+      if (error) return res.status(500).json({ error: error.message });
+      return res.json({ data });
     } else {
       if (!isValidTripId(tripId)) return res.status(400).json({ error: 'Invalid trip_id' });
+      return res.json({ data: mockStore[tripId] || [] });
     }
-
-    const { data, error } = await supabase.from('expenses').select('*').eq('trip_id', tripId);
-    if (error) return res.status(500).json({ error: error.message });
-    return res.json({ data });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
