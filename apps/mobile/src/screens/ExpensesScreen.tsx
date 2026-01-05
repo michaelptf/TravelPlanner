@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchExpenses, createExpense, deleteExpense } from '../services/api';
 
 type Expense = {
   id: string;
@@ -12,38 +14,50 @@ type Expense = {
 const members = ['Alice', 'Bob', 'Charlie'];
 
 const initialMock: Expense[] = [
-  { id: 'e1', description: 'Dinner', amount: 120.5, payer: 'Alice', participants: ['Alice', 'Bob', 'Charlie'] },
-  { id: 'e2', description: 'Taxi', amount: 35, payer: 'Bob', participants: ['Bob'] },
+  { id: 'e1', trip_id: 'mock-trip-1', description: 'Dinner', amount: 120.5, payer: 'Alice', participants: ['Alice', 'Bob', 'Charlie'] },
+  { id: 'e2', trip_id: 'mock-trip-1', description: 'Taxi', amount: 35, payer: 'Bob', participants: ['Bob'] },
 ];
 
+const demoTripId = 'mock-trip-1';
+
 const ExpensesScreen: React.FC = () => {
-  const [items, setItems] = useState<Expense[]>(initialMock);
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState('');
   const [payer, setPayer] = useState(members[0]);
 
-  const addItem = () => {
+  const queryClient = useQueryClient();
+
+  const { data: items, isLoading, error } = useQuery(['expenses', demoTripId], () => fetchExpenses(demoTripId), {
+    placeholderData: initialMock,
+  });
+
+  const addMutation = useMutation((payload: any) => createExpense(payload), {
+    onSuccess: () => queryClient.invalidateQueries(['expenses', demoTripId]),
+  });
+
+  const deleteMutation = useMutation((id: string) => deleteExpense(id), {
+    onSuccess: () => queryClient.invalidateQueries(['expenses', demoTripId]),
+  });
+
+  const addItem = async () => {
     const a = parseFloat(amount);
     if (!desc.trim() || Number.isNaN(a) || a <= 0) {
       Alert.alert('Invalid', 'Please enter description and a valid amount');
       return;
     }
-    const newItem: Expense = {
-      id: Date.now().toString(),
-      description: desc.trim(),
-      amount: a,
-      payer,
-      participants: [payer],
-    };
-    setItems((s) => [newItem, ...s]);
-    setDesc('');
-    setAmount('');
+    try {
+      await addMutation.mutateAsync({ trip_id: demoTripId, description: desc.trim(), amount: a, payer, participants: [payer] });
+      setDesc('');
+      setAmount('');
+    } catch (err: any) {
+      Alert.alert('Error', err.message || String(err));
+    }
   };
 
   const removeItem = (id: string) => {
     Alert.alert('Delete expense', 'Delete this expense?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => setItems((s) => s.filter((x) => x.id !== id)) },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteMutation.mutate(id) },
     ]);
   };
 

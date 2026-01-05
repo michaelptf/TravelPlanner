@@ -42,3 +42,31 @@ export const deleteSchedule = async (id: string) => {
   const json = await res.json();
   return json.data;
 };
+
+export const fetchExpenses = async (tripId: string) => {
+  const base = getApiBase();
+  const res = await fetch(`${base}/api/expenses?trip_id=${encodeURIComponent(tripId)}`);
+  if (!res.ok) throw new Error(await res.text());
+  const json = await res.json();
+  return json.data;
+};
+
+export const createExpense = async (payload: any) => {
+  const base = getApiBase();
+  const res = await fetch(`${base}/api/expenses`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const json = await res.json();
+  return json.data;
+};
+
+export const deleteExpense = async (id: string) => {
+  const base = getApiBase();
+  const res = await fetch(`${base}/api/expenses/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(await res.text());
+  const json = await res.json();
+  return json.data;
+};
