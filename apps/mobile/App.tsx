@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import BottomNav, { TabName } from './src/components/BottomNav';
 import TripInfoScreen from './src/screens/TripInfoScreen';
 import ScheduleScreen from './src/screens/ScheduleScreen';
@@ -32,10 +33,12 @@ export default function App() {
 
   return (
     <QueryClientProvider client={qc}>
-      <View style={{ flex: 1 }}>
-        {renderScreen()}
-        <BottomNav activeTab={activeTab} onTabPress={setActiveTab} />
-      </View>
+      <SafeAreaProvider>
+        <View style={{ flex: 1 }}>
+          {renderScreen()}
+          <BottomNav activeTab={activeTab} onTabPress={setActiveTab} />
+        </View>
+      </SafeAreaProvider>
     </QueryClientProvider>
   );
 }

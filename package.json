@@ -2,10 +2,15 @@
   "name": "TravelPlanner",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["apps/*"],
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "start:mobile":"npm --prefix apps/mobile start",
-    "start:backend":"npm --prefix backend run dev",
-    "build":"echo \"No build at root\""
+    "start:mobile": "npm --prefix apps/mobile start",
+    "start:backend": "npm --prefix backend run dev",
+    "build": "echo \"No build at root\""
+  },
+  "dependencies": {
+    "react-native-safe-area-context": "^5.6.2"
   }
 }

@@ -174,17 +174,17 @@ const styles = StyleSheet.create({
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.sm },
   cardTitle: { ...typography.h2, marginBottom: spacing.sm },
   cardSubtext: { ...typography.caption, marginBottom: spacing.xs },
-  label: { ...typography.body, fontWeight: '600', color: colors.mutedText },
-  value: { ...typography.body, fontWeight: '600', color: colors.darkText },
+  label: { ...typography.body, fontWeight: 600, color: colors.mutedText },
+  value: { ...typography.body, fontWeight: 600, color: colors.darkText },
   vibeRow: { flexDirection: 'row', gap: spacing.md },
   vibeBadge: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, backgroundColor: colors.warmCream, borderRadius: 20, fontSize: 14 },
   input: { borderWidth: 1, padding: spacing.md, marginVertical: spacing.md, borderRadius: 8, backgroundColor: colors.lightBg },
   errorText: { color: colors.coral, fontSize: 12, marginVertical: spacing.xs },
   errorBox: { backgroundColor: '#FFE5E5', padding: spacing.md, borderRadius: 8, marginVertical: spacing.md },
   infoBox: { backgroundColor: colors.warmCream, padding: spacing.md, borderRadius: 8, marginVertical: spacing.md },
-  infoText: { ...typography.caption, color: colors.darkText },
+  infoText: { ...(typography.caption as import('react-native').TextStyle), color: colors.darkText },
   resultBox: { backgroundColor: colors.softShadow, padding: spacing.md, borderRadius: 8, marginVertical: spacing.md },
-  resultText: { ...typography.small, color: colors.darkText, fontFamily: 'monospace' },
+  resultText: { ...(typography.small as import('react-native').TextStyle), color: colors.darkText, fontFamily: 'monospace' },
 });
 
 export default TripInfoScreen;

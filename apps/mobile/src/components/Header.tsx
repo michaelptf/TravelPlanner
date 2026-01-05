@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, useSafeAreaInsets } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { colors, spacing, typography } from '../theme';
 
 interface HeaderProps {
@@ -33,6 +34,7 @@ const styles = StyleSheet.create({
   },
   tripName: {
     ...typography.h1,
+    fontWeight: 600,
     marginHorizontal: spacing.xs,
   },
   moreIcon: {
