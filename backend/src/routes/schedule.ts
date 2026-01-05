@@ -35,15 +35,16 @@ const isValidTripId = (id: string) => {
 // GET /api/schedule?trip_id=...
 router.get('/', async (req, res) => {
   try {
-    const tripId = req.query.trip_id as string | undefined;
+    let tripId = (req.query.trip_id as string | undefined)?.trim();
     if (!tripId) return res.json({ data: [] });
-    if (!isValidTripId(tripId)) return res.status(400).json({ error: 'Invalid trip_id' });
 
-    if (!supabase) {
-      if (process.env.NODE_ENV !== 'production') {
-        return res.json({ data: mockStore[tripId] || [] });
-      }
-      return res.status(503).json({ error: 'Supabase not configured' });
+    // If Supabase is configured, enforce UUID trip ids only to avoid invalid uuid casts
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (supabase) {
+      if (!uuidRegex.test(tripId)) return res.status(400).json({ error: 'Invalid trip_id: must be a UUID when Supabase is configured' });
+    } else {
+      // dev path: accept mock-trip-* ids
+      if (!isValidTripId(tripId)) return res.status(400).json({ error: 'Invalid trip_id' });
     }
 
     // Find schedule_day ids for the trip, then fetch schedule_items
@@ -66,7 +67,11 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const payload = req.body as Partial<ScheduleItem>;
-    if (!payload.trip_id || !isValidTripId(payload.trip_id)) return res.status(400).json({ error: 'trip_id required and must be valid' });
+    if (!payload.trip_id) return res.status(400).json({ error: 'trip_id required' });
+    const tripId = (payload.trip_id as string).trim();
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (supabase && !uuidRegex.test(tripId)) return res.status(400).json({ error: 'trip_id required and must be a UUID when Supabase is configured' });
+    if (!supabase && !isValidTripId(tripId)) return res.status(400).json({ error: 'trip_id required and must be valid' });
     if (!payload.title) return res.status(400).json({ error: 'title required' });
 
     if (!supabase) {

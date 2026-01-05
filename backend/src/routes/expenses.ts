@@ -27,15 +27,15 @@ const isValidTripId = (id: string) => {
 // GET /api/expenses?trip_id=...
 router.get('/', async (req, res) => {
   try {
-    const tripId = req.query.trip_id as string | undefined;
+    let tripId = (req.query.trip_id as string | undefined)?.trim();
     if (!tripId) return res.json({ data: [] });
-    if (!isValidTripId(tripId)) return res.status(400).json({ error: 'Invalid trip_id' });
 
-    if (!supabase) {
-      if (process.env.NODE_ENV !== 'production') {
-        return res.json({ data: mockStore[tripId] || [] });
-      }
-      return res.status(503).json({ error: 'Supabase not configured' });
+    // Enforce UUIDs when connected to Supabase to avoid invalid uuid casts
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (supabase) {
+      if (!uuidRegex.test(tripId)) return res.status(400).json({ error: 'Invalid trip_id: must be a UUID when Supabase is configured' });
+    } else {
+      if (!isValidTripId(tripId)) return res.status(400).json({ error: 'Invalid trip_id' });
     }
 
     const { data, error } = await supabase.from('expenses').select('*').eq('trip_id', tripId);
@@ -52,7 +52,11 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const payload = req.body as Partial<Expense>;
-    if (!payload.trip_id || !isValidTripId(payload.trip_id)) return res.status(400).json({ error: 'trip_id required and must be valid' });
+    if (!payload.trip_id) return res.status(400).json({ error: 'trip_id required' });
+    const tripId = (payload.trip_id as string).trim();
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (supabase && !uuidRegex.test(tripId)) return res.status(400).json({ error: 'trip_id required and must be a UUID when Supabase is configured' });
+    if (!supabase && !isValidTripId(tripId)) return res.status(400).json({ error: 'trip_id required and must be valid' });
     if (!payload.description) return res.status(400).json({ error: 'description required' });
     if (typeof payload.amount !== 'number' || payload.amount <= 0) return res.status(400).json({ error: 'amount required and must be > 0' });
 
