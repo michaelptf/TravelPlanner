@@ -1,16 +1,126 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  Button,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 
-const ScheduleScreen: React.FC = () => (
-  <View style={styles.container}>
-    <Text style={styles.title}>Schedule</Text>
-    <Text>AI suggestions will appear here</Text>
-  </View>
-);
+type ScheduleItem = {
+  id: string;
+  title: string;
+  start: string; // ISO date/time string
+  location?: string;
+  notes?: string;
+};
+
+const initialMock: ScheduleItem[] = [
+  {
+    id: 's1',
+    title: 'Flight to Tokyo',
+    start: new Date().toISOString(),
+    location: 'SFO Airport',
+    notes: 'Arrive 2h early',
+  },
+  {
+    id: 's2',
+    title: 'Check into hotel',
+    start: new Date(Date.now() + 1000 * 60 * 60 * 5).toISOString(),
+    location: 'Shinjuku',
+    notes: 'Ask for late check-in',
+  },
+];
+
+const ScheduleScreen: React.FC = () => {
+  const [items, setItems] = useState<ScheduleItem[]>(initialMock);
+  const [title, setTitle] = useState('');
+  const [location, setLocation] = useState('');
+
+  const addItem = () => {
+    if (!title.trim()) {
+      Alert.alert('Title required', 'Please enter a title for the schedule item.');
+      return;
+    }
+    const newItem: ScheduleItem = {
+      id: Date.now().toString(),
+      title: title.trim(),
+      start: new Date().toISOString(),
+      location: location.trim() || undefined,
+    };
+    setItems((s) => [newItem, ...s]);
+    setTitle('');
+    setLocation('');
+  };
+
+  const removeItem = (id: string) => {
+    Alert.alert('Delete item', 'Are you sure you want to delete this item?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => setItems((s) => s.filter((i) => i.id !== id)) },
+    ]);
+  };
+
+  const renderItem = ({ item }: { item: ScheduleItem }) => (
+    <TouchableOpacity style={styles.item} onLongPress={() => removeItem(item.id)}>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.itemTitle}>{item.title}</Text>
+        <Text style={styles.itemMeta}>{new Date(item.start).toLocaleString()}</Text>
+        {item.location ? <Text style={styles.itemMeta}>{item.location}</Text> : null}
+        {item.notes ? <Text style={styles.itemNotes}>{item.notes}</Text> : null}
+      </View>
+      <TouchableOpacity onPress={() => removeItem(item.id)}>
+        <Text style={{ color: 'crimson' }}>Delete</Text>
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Schedule</Text>
+
+      <View style={styles.form}>
+        <TextInput
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Add activity (e.g., 'City tour')"
+          style={styles.input}
+        />
+        <TextInput
+          value={location}
+          onChangeText={setLocation}
+          placeholder="Location (optional)"
+          style={styles.input}
+        />
+        <Button title="Add" onPress={addItem} />
+      </View>
+
+      <FlatList
+        data={items}
+        keyExtractor={(i) => i.id}
+        renderItem={renderItem}
+        contentContainerStyle={{ paddingTop: 12 }}
+        ListEmptyComponent={<Text>No schedule items yet.</Text>}
+      />
+
+      <View style={{ marginTop: 12 }}>
+        <Button title="Seed mock items" onPress={() => setItems(initialMock)} />
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 12 }
+  title: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
+  form: { marginBottom: 12 },
+  input: { borderWidth: 1, borderColor: '#ddd', padding: 8, marginBottom: 8, borderRadius: 6 },
+  item: { padding: 12, backgroundColor: '#fff', borderRadius: 8, marginBottom: 10, flexDirection: 'row', alignItems: 'center' },
+  itemTitle: { fontWeight: '600', marginBottom: 4 },
+  itemMeta: { color: '#666', fontSize: 12 },
+  itemNotes: { color: '#666', fontSize: 12, marginTop: 6 },
 });
 
 export default ScheduleScreen;
