@@ -95,7 +95,10 @@ const ExpensesScreen: React.FC = () => {
       <FlatList data={items} keyExtractor={(i) => i.id} renderItem={renderItem} ListEmptyComponent={<Text>No expenses yet.</Text>} />
 
       <View style={{ marginTop: 12 }}>
-        <Button title="Seed mock expenses" onPress={() => setItems(initialMock)} />
+        <Button
+          title="Seed mock expenses"
+          onPress={() => queryClient.setQueryData(['expenses', demoTripId], initialMock)}
+        />
       </View>
     </View>
   );

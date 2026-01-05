@@ -126,7 +126,10 @@ const ScheduleScreen: React.FC = () => {
       />
 
       <View style={{ marginTop: 12 }}>
-        <Button title="Seed mock items" onPress={() => setItems(initialMock)} />
+        <Button
+          title="Seed mock items"
+          onPress={() => queryClient.setQueryData(['schedule', demoTripId], initialMock)}
+        />
       </View>
     </View>
   );
