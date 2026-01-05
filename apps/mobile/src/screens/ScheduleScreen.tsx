@@ -46,16 +46,20 @@ const ScheduleScreen: React.FC = () => {
 
   const queryClient = useQueryClient();
 
-  const { data: items, isLoading, error } = useQuery(['schedule', demoTripId], () => fetchSchedule(demoTripId), {
+  const { data: items, isLoading, error } = useQuery({
+    queryKey: ['schedule', demoTripId],
+    queryFn: () => fetchSchedule(demoTripId),
     placeholderData: initialMock,
   });
 
-  const addMutation = useMutation((payload: any) => createSchedule(payload), {
-    onSuccess: () => queryClient.invalidateQueries(['schedule', demoTripId]),
+  const addMutation = useMutation({
+    mutationFn: (payload: any) => createSchedule(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['schedule', demoTripId] }),
   });
 
-  const deleteMutation = useMutation((id: string) => deleteSchedule(id), {
-    onSuccess: () => queryClient.invalidateQueries(['schedule', demoTripId]),
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteSchedule(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['schedule', demoTripId] }),
   });
 
   const addItem = async () => {

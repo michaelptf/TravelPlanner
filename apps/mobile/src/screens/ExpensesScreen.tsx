@@ -27,16 +27,20 @@ const ExpensesScreen: React.FC = () => {
 
   const queryClient = useQueryClient();
 
-  const { data: items, isLoading, error } = useQuery(['expenses', demoTripId], () => fetchExpenses(demoTripId), {
+  const { data: items, isLoading, error } = useQuery({
+    queryKey: ['expenses', demoTripId],
+    queryFn: () => fetchExpenses(demoTripId),
     placeholderData: initialMock,
   });
 
-  const addMutation = useMutation((payload: any) => createExpense(payload), {
-    onSuccess: () => queryClient.invalidateQueries(['expenses', demoTripId]),
+  const addMutation = useMutation({
+    mutationFn: (payload: any) => createExpense(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['expenses', demoTripId] }),
   });
 
-  const deleteMutation = useMutation((id: string) => deleteExpense(id), {
-    onSuccess: () => queryClient.invalidateQueries(['expenses', demoTripId]),
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteExpense(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['expenses', demoTripId] }),
   });
 
   const addItem = async () => {
