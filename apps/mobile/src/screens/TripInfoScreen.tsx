@@ -66,8 +66,9 @@ const TripInfoScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Header tripName="Tokyo Escape" onMorePress={() => Alert.alert('Menu', 'Coming soon')} />
+    <View style={styles.screenContainer}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Header tripName="Tokyo Escape" onMorePress={() => Alert.alert('Menu', 'Coming soon')} />
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>✈️ Flight</Text>
@@ -160,13 +161,15 @@ const TripInfoScreen: React.FC = () => {
         </View>
       </View>
     </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { paddingBottom: spacing.xl, backgroundColor: colors.lightBg },
-  section: { marginBottom: spacing.lg, paddingHorizontal: spacing.lg },
-  sectionTitle: { ...typography.h2, marginBottom: spacing.md },
+  screenContainer: { flex: 1, backgroundColor: colors.lightBg },
+  container: { paddingBottom: spacing.xl + 80, backgroundColor: colors.lightBg },
+  section: { marginBottom: spacing.lg, marginHorizontal: spacing.lg },
+  sectionTitle: { ...typography.h2, marginBottom: spacing.md, marginHorizontal: spacing.xs },
   card: { ...shadows.soft, backgroundColor: colors.cardBg, borderRadius: 12, padding: spacing.md },
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.sm },
   cardTitle: { ...typography.h2, marginBottom: spacing.sm },

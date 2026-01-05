@@ -1,20 +1,24 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing, typography, shadows } from '../theme';
+import { View, Text, StyleSheet, TouchableOpacity, useSafeAreaInsets } from 'react-native';
+import { colors, spacing, typography } from '../theme';
 
 interface HeaderProps {
   tripName?: string;
   onMorePress?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ tripName = 'My Trip', onMorePress }) => (
-  <View style={styles.header}>
-    <Text style={styles.tripName}>{tripName}</Text>
-    <TouchableOpacity onPress={onMorePress}>
-      <Text style={styles.moreIcon}>⋮</Text>
-    </TouchableOpacity>
-  </View>
-);
+const Header: React.FC<HeaderProps> = ({ tripName = 'My Trip', onMorePress }) => {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
+      <Text style={styles.tripName}>{tripName}</Text>
+      <TouchableOpacity onPress={onMorePress}>
+        <Text style={styles.moreIcon}>⋮</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   header: {
@@ -28,9 +32,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.borderLight,
   },
   tripName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.darkText,
+    ...typography.h1,
+    marginHorizontal: spacing.xs,
   },
   moreIcon: {
     fontSize: 24,

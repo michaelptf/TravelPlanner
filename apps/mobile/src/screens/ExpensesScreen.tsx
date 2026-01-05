@@ -87,7 +87,7 @@ const ExpensesScreen: React.FC = () => {
   const totalExpenses = items?.reduce((sum, item) => sum + item.amount, 0) || 0;
 
   return (
-    <View style={styles.container}>
+    <View style={styles.screenContainer}>
       <Header tripName="Tokyo Escape" />
       <View style={styles.content}>
         <Text style={styles.sectionTitle}>💰 Expenses</Text>
@@ -142,8 +142,9 @@ const ExpensesScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  screenContainer: { flex: 1, backgroundColor: colors.lightBg },
   container: { flex: 1, backgroundColor: colors.lightBg },
-  content: { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg },
+  content: { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg + 80 },
   sectionTitle: { ...typography.h2, marginBottom: spacing.lg },
   formCard: { ...shadows.soft, backgroundColor: colors.cardBg, borderRadius: 12, padding: spacing.md, marginBottom: spacing.lg },
   input: { borderWidth: 1, borderColor: colors.borderLight, padding: spacing.md, marginBottom: spacing.md, borderRadius: 8, backgroundColor: colors.lightBg, color: colors.darkText },
