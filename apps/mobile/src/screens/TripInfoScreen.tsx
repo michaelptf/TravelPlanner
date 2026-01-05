@@ -9,6 +9,9 @@ const TripInfoScreen: React.FC = () => {
   const [detectedBase, setDetectedBase] = useState<string | undefined>();
   const [testUserId, setTestUserId] = useState<string>('11111111-1111-1111-1111-111111111111');
 
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const isUserIdValid = uuidRegex.test(testUserId);
+
   const getApiBase = () => {
     // Strategies to determine backend host reachable from the device
     // 1) Expo debugger host (when running in dev mode)
@@ -41,7 +44,8 @@ const TripInfoScreen: React.FC = () => {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000);
 
-      const res = await fetch(`${base}/api/trips?user_id=1`, { signal: controller.signal });
+      const uid = userId ?? testUserId;
+      const res = await fetch(`${base}/api/trips?user_id=${encodeURIComponent(uid)}`, { signal: controller.signal });
       clearTimeout(timeout);
 
       if (!res.ok) {
@@ -76,14 +80,40 @@ const TripInfoScreen: React.FC = () => {
         <Text style={{ marginBottom: 8 }}>Test user id:</Text>
         <TextInput
           value={testUserId}
-          onChangeText={setTestUserId}
-          style={{ borderWidth: 1, borderColor: '#ddd', padding: 8, borderRadius: 6, marginBottom: 8 }}
+          onChangeText={(t) => {
+            setTestUserId(t);
+            setError(undefined);
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: !isUserIdValid ? 'crimson' : '#ddd',
+            padding: 8,
+            borderRadius: 6,
+            marginBottom: 8,
+          }}
           placeholder="owner_id (uuid)"
         />
+
+        {!isUserIdValid ? (
+          <Text style={{ color: 'crimson', marginBottom: 8 }}>
+            Invalid user id: must be a UUID (e.g., 11111111-1111-1111-1111-111111111111)
+          </Text>
+        ) : null}
+
         {loading ? (
           <ActivityIndicator />
         ) : (
-          <Button title="Test Backend API" onPress={() => testApi(testUserId)} />
+          <Button
+            title={isUserIdValid ? 'Test Backend API' : 'Enter valid UUID'}
+            onPress={() => {
+              if (!isUserIdValid) {
+                setError('Invalid user_id: must be a UUID.');
+                return;
+              }
+              testApi(testUserId);
+            }}
+            disabled={!isUserIdValid || loading}
+          />
         )}
       </View>
 
