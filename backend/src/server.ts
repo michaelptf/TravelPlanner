@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import tripsRouter from './routes/trips';
+import scheduleRouter from './routes/schedule';
 
 const app = express();
 app.use(helmet());
@@ -15,6 +16,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 // API routes
 app.use('/api/trips', tripsRouter);
+app.use('/api/schedule', scheduleRouter);
 app.use('/api/dev', require('./routes/dev').default);
 
 const port = Number(process.env.PORT || 4000);
