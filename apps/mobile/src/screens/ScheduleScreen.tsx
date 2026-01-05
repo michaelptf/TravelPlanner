@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchSchedule, createSchedule, deleteSchedule } from '../services/api';
 
 type ScheduleItem = {
   id: string;
@@ -35,31 +37,45 @@ const initialMock: ScheduleItem[] = [
   },
 ];
 
+const demoTripId = 'mock-trip-1';
+
+
 const ScheduleScreen: React.FC = () => {
-  const [items, setItems] = useState<ScheduleItem[]>(initialMock);
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
 
-  const addItem = () => {
+  const queryClient = useQueryClient();
+
+  const { data: items, isLoading, error } = useQuery(['schedule', demoTripId], () => fetchSchedule(demoTripId), {
+    placeholderData: initialMock,
+  });
+
+  const addMutation = useMutation((payload: any) => createSchedule(payload), {
+    onSuccess: () => queryClient.invalidateQueries(['schedule', demoTripId]),
+  });
+
+  const deleteMutation = useMutation((id: string) => deleteSchedule(id), {
+    onSuccess: () => queryClient.invalidateQueries(['schedule', demoTripId]),
+  });
+
+  const addItem = async () => {
     if (!title.trim()) {
       Alert.alert('Title required', 'Please enter a title for the schedule item.');
       return;
     }
-    const newItem: ScheduleItem = {
-      id: Date.now().toString(),
-      title: title.trim(),
-      start: new Date().toISOString(),
-      location: location.trim() || undefined,
-    };
-    setItems((s) => [newItem, ...s]);
-    setTitle('');
-    setLocation('');
+    try {
+      await addMutation.mutateAsync({ trip_id: demoTripId, title: title.trim(), start: new Date().toISOString(), location: location.trim() || undefined });
+      setTitle('');
+      setLocation('');
+    } catch (err: any) {
+      Alert.alert('Error', err.message || String(err));
+    }
   };
 
   const removeItem = (id: string) => {
     Alert.alert('Delete item', 'Are you sure you want to delete this item?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => setItems((s) => s.filter((i) => i.id !== id)) },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteMutation.mutate(id) },
     ]);
   };
 

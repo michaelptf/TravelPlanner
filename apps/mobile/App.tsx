@@ -1,7 +1,14 @@
 import React from 'react';
-import TripInfoScreen from './src/screens/TripInfoScreen';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ScheduleScreen from './src/screens/ScheduleScreen';
+
+const qc = new QueryClient();
 
 export default function App() {
-  return <TripInfoScreen />;
+  return (
+    <QueryClientProvider client={qc}>
+      <ScheduleScreen />
+    </QueryClientProvider>
+  );
 }
 
