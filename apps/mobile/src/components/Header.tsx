@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   },
   tripName: {
     ...typography.h1,
-    fontWeight: 600,
+    fontWeight: '600',
     marginHorizontal: spacing.xs,
   },
   moreIcon: {

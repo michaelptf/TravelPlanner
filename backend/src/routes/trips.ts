@@ -62,4 +62,12 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PATCH /api/trips/:id - Update trip (Flight info)
+router.patch('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { data, error } = await supabase.from('trips').update(req.body).eq('id', id).select();
+  if (error) return res.status(400).json({ error: error.message });
+  return res.json({ data });
+});
+
 export default router;
